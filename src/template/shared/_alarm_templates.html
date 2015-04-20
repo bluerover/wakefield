@@ -1,0 +1,32 @@
+<script id="alarmRowTemplate" type="text/handlebars">
+  <tr>
+	<td>{{!date}}</td>
+    <td>{{!message}}</td>
+    <td>{{!status}}</td>
+    {{!#if is_acknowledged}}
+		<td>
+			<button type="button" class="btn btn-default show-popover" data-alarm-id="{{!id}}">
+      	 		{{!user_id}}
+      			<span class="glyphicon glyphicon-info-sign"></span>
+    		</button> 
+    	</td>
+	{{!else}}    
+  		<td><button class="btn btn-success acknowledge" data-alarm-id="{{!id}}">Acknowledge</button></td>
+  	{{!/if}}
+  </tr>
+</script>
+
+<script id="popoverTemplate" type="text/handlebars">
+  <div>
+	<p>{{!user_id}} acknowledged alarm on {{!acknowledge_date}}</p>
+	<p> {{!notes}}</p>
+  </div>
+</script>
+
+<script id="realtimeAlarmTemplate" type="text/handlebars">
+	<div>
+		<p>
+			<a href="/equipment/{{!equipment_id}}" class="btn btn-primary">info</a> <span>{{!message}}</span>
+		</p>	
+	</div>
+</script>

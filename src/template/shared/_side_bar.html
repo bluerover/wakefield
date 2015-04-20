@@ -1,0 +1,25 @@
+<div id="sidebar-wrapper">
+  <ul class="sidebar-nav">
+    <li>
+      <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% end %}">
+        <div class="glyphicon glyphicon-dashboard"></div>
+        <div class="text">Dashboard</div>
+        <div class="arrow"></div>
+      </a>
+    </li>
+    <li>
+      <a href="/equipment/" class="{% if request.path == '/equipment/' %}active{% end %}">
+        <div class="glyphicon glyphicon-wrench"></div>
+        <div class="text">Equipment</div>
+        <div class="arrow"></div>
+      </a>
+    </li>
+    <li>
+      <a href="/hospital/" class="{% if request.path == '/hospital/' %}active{% end %}">
+        <div class="glyphicon glyphicon-cog"></div>
+        <div class="text">Hospitals</div>
+        <div class="arrow"></div>
+      </a>
+    </li>
+  </ul>
+</div>
