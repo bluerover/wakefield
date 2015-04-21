@@ -64,6 +64,24 @@ span.tags
     margin-left: -10px;
     z-index: 10;
     }
+ 
+.flyover {
+   left: 150%;
+   overflow: hidden;
+   position: fixed;
+   width: 50%;
+   opacity: 0.9;
+   z-index: 1050;
+   transition: left 0.6s ease-out 0s;
+}
+ 
+.flyover-centered {
+   top: 50%;
+   transform: translate(-50%, -50%);
+}
+.flyover.in {
+   left: 0%;
+}
 </style>
 {% end %}
 
@@ -79,6 +97,7 @@ span.tags
 			  <div class="form-group">
 			  	<input name="volume-{{d}}" class="form-control input-lg" placeholder="total volume mm&sup3;" value="1000"></input>
 			  	<input name="area-{{d}}" class="form-control input-lg" placeholder="surface area mm&sup2;" value="50"></input>
+			  	<input name="threshold-{{d}}" class="form-control input-lg" placeholder="threshold %" value="20"></input>
 			  </div>
 			  <button type="submit" class="btn-apply btn btn-default btn-lg">apply</button>
 			</form>
@@ -95,7 +114,14 @@ span.tags
 			<div class="line epoch category10" style="height: 200px;"></div>					
 		</div>
 	</div>
-	
+	<br/>
+	<div class="row hidden" id="alert-{{d}}">
+		<div class="col-md-12 text-center">
+		<div class="alert alert-danger" role="alert">
+		  <h3 style="color:white;">Barrel Requires Fill</h3>
+		</div>
+		</div>
+	</div>
 	{% end %}
 	<div id="area" class="epoch category10" style="height: 200px;"></div>
 	<div id="output">
@@ -137,6 +163,12 @@ span.tags
 					charts[data['mac']]['gauge'].push(currentVolume/drums[key]['volume']);
 					charts[data['mac']]['line'].push(
 					[{time:parseFloat(data['time']),y:parseFloat(data['level'])}]);
+					
+					if(currentVolume/drums[key]['volume'] < drums[key]['threshold']){
+						$('[id="alert-'+key+'"]').removeClass('hidden');
+					}else{
+						$('[id="alert-'+key+'"]').addClass('hidden');
+					}
 				}
 				
 			}catch(e){
@@ -159,10 +191,12 @@ span.tags
 		 		drums[d][e]['time'] = parseFloat(drums[d][e]['time']);
 		 		drums[d]['volume'] = 1000;
 		 		drums[d]['area'] = 50;
+		 		drums[d]['threshold']=0.2;
 		 	};
+		 	var volume = (drums[d]['volume'] - (drums[d]['area'] * parseFloat(drums[d][drums[d].length-1]['level'])))/drums[d]['volume'];
 			charts[d] = {
 				'gauge':element.find('.gauge').epoch({type: 'time.gauge',
-		    		value:  (drums[d]['volume'] - (drums[d]['area'] * parseFloat(drums[d][drums[d].length-1]['level'])))/drums[d]['volume']
+		    		value:  volume
 	  			}),
   				'line':element.find('.line').epoch({type: 'time.line',
   					axes:['left','bottom','right'],
@@ -182,6 +216,7 @@ span.tags
 			var key = form[0].id.split('-')[1];
 			drums[key]['volume'] = parseFloat($(form.find('input')[0]).val());
 			drums[key]['area'] = parseFloat($(form.find('input')[1]).val());
+			drums[key]['threshold'] = parseFloat($(form.find('input')[2]).val())/100;
 		});
 		
 		
