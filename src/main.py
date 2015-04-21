@@ -13,6 +13,7 @@ import tornado.httpserver
 import json
 from cgi import maxlen
 import collections
+import MySQLdb as db
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
@@ -47,8 +48,26 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         WebSocketHandler.clients.pop(id(self))
         print("WebSocket closed")
+        
+import MySQLdb,sys
 
+def insert(mac,level,timestamp):
+    try:
+        con = MySQLdb.connect(host='localhost', user='root', passwd='', db='levelMonitor')
+        cur = con.cursor()
+        cur.execute("INSERT INTO level(mac,timestamp,level) VALUES(%s,%s,%s)", (mac,int(timestamp),int(level)))
+    except:
+        print sys.exc_info()
+        con.rollback()
+    finally:
+        if con:
+            con.commit()
+            con.close()
+            
 if __name__ == '__main__':
+    
+    
+    
     drums = dict()
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(client, userdata, flags, rc):
@@ -60,6 +79,7 @@ if __name__ == '__main__':
     def on_message(client, userdata, msg):
         try:
             mac,level,timestamp = msg.payload.split("/")
+            insert(mac,level,timestamp)
             data_point = {'mac':mac, 'time':timestamp, 'level':level}
             if not(drums.has_key(mac)):
                 drums[mac] = collections.deque([],100)
