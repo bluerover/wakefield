@@ -162,7 +162,7 @@ span.tags
 		 	};
 			charts[d] = {
 				'gauge':element.find('.gauge').epoch({type: 'time.gauge',
-		    		value: 0.5
+		    		value:  (drums[d]['volume'] - (drums[d]['area'] * parseFloat(drums[d][drums[d].length-1]['level'])))/drums[d]['volume']
 	  			}),
   				'line':element.find('.line').epoch({type: 'time.line',
   					axes:['left','bottom','right'],
