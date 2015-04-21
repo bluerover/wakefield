@@ -75,21 +75,23 @@ span.tags
 	</div>
 	<div id="title-{{d}}" class="row">
 		<div class="col-md-12 text-center">
-			<form class="form-inline">
+			<form class="form-inline" id="form-{{d}}">
 			  <div class="form-group">
-			  	<input id="volume-{{d}}" class="form-control" placeholder="total volume e.g. 265"></input>
-			  	<input id="base-{{d}}" class="form-control" placeholder="height x width e.g. 25"></input>
+			  	<input name="volume-{{d}}" class="form-control input-lg" placeholder="total volume mm&sup3;" value="1000"></input>
+			  	<input name="area-{{d}}" class="form-control input-lg" placeholder="surface area mm&sup2;" value="50"></input>
 			  </div>
-			  <button type="submit" class="btn btn-default">apply</button>
+			  <button type="submit" class="btn-apply btn btn-default btn-lg">apply</button>
 			</form>
 		</div>
 	</div>
 	<br/>
 	<div id="{{d}}" class="row">
 		<div class="col-md-4">
+			<h3 class="text-center">Barrel Status (% Full)</h3>
 			<div class="gauge epoch category10" style="height: 200px;"></div>
 		</div>
 		<div class="col-md-8">
+			<h3 class="text-center">Measured Distance (mm From Top)</h3>
 			<div class="line epoch category10" style="height: 200px;"></div>					
 		</div>
 	</div>
@@ -129,8 +131,10 @@ span.tags
 		function onMessage(evt) { 
 			try{
 				var data = JSON.parse(evt.data); 
-				if(charts.hasOwnProperty(data['mac'])){
-					charts[data['mac']]['gauge'].push(0.8);
+				var key = data['mac'];
+				if(charts.hasOwnProperty(key) && drums.hasOwnProperty(key)){
+					var currentVolume = drums[key]['volume'] - drums[key]['area'] * parseFloat(data['level']);
+					charts[data['mac']]['gauge'].push(currentVolume/drums[key]['volume']);
 					charts[data['mac']]['line'].push(
 					[{time:parseFloat(data['time']),y:parseFloat(data['level'])}]);
 				}
@@ -153,6 +157,8 @@ span.tags
 		 	for(var e in drums[d]){
 		 		drums[d][e]['y'] = parseFloat(drums[d][e]['level']);
 		 		drums[d][e]['time'] = parseFloat(drums[d][e]['time']);
+		 		drums[d]['volume'] = 1000;
+		 		drums[d]['area'] = 50;
 		 	};
 			charts[d] = {
 				'gauge':element.find('.gauge').epoch({type: 'time.gauge',
@@ -166,11 +172,17 @@ span.tags
   						}]
   				}),
   				 			
-  			};
+  			};//charts
   			
-		}
+		}//end for
 		
-		
+		$('.btn-apply').on('click',function(e){
+			e.preventDefault();
+			var form = $(this).parent();
+			var key = form[0].id.split('-')[1];
+			drums[key]['volume'] = parseFloat($(form.find('input')[0]).val());
+			drums[key]['area'] = parseFloat($(form.find('input')[1]).val());
+		});
 		
 		
 				
